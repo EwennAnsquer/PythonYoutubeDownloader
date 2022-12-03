@@ -4,8 +4,6 @@ import os
 import shutil
 import glob
 from numpy import append
-from tqdm import tqdm,trange
-from alive_progress import alive_bar
 from datetime import date
 
 class yt:
@@ -148,13 +146,13 @@ for i in range(len(YTlist)):
     if(isinstance(YTlist[i],list)): #return true if its a list
         v=0
         for v in range(2):
-            # try:
-            YTlist[i][v].stream.download()
-            # except:
-            #     print("Erreur dans le telechargement du fichier.")
-            #     YTlist[i][v].printStreams(YTlist[i][v].type)
-            #     YTlist[i][v].getStreams()
-            #     YTlist[i][v].stream.download()
+            try:
+                YTlist[i][v].stream.download()
+            except:
+                print("Erreur dans le telechargement du fichier.")
+                YTlist[i][v].printStreams(YTlist[i][v].type)
+                YTlist[i][v].getStreams()
+                YTlist[i][v].stream.download()
             title=glob.glob("*.webm")[0];
             if(v==0):
                 os.rename(title,"video.mp4")
@@ -173,11 +171,10 @@ for i in range(len(YTlist)):
         YTlist[i].stream.download()
     
 if(os.path.isdir(currentDate)): #move files if folder exist
-    videos=glob.glob("*.mp4")
-    audios=glob.glob("*.mp3")
-    for i in range(len(videos)):
-        os.system(f'mv "{videos[i]}" {currentDate}')
-    for i in range(len(audios)):
-        os.system(f'mv "{audios[i]}" {currentDate}')
+    for i in range(len(YTlist)):
+        if(YTlist[i][0].type=="video"):
+            os.system(f'mv "{YTlist[i][0].title}".mp4 {currentDate}')
+        else:
+            os.system(f'mv "{YTlist[i][0].title}".mp3 {currentDate}')
         
 print("Finit")
