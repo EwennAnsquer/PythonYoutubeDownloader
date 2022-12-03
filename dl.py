@@ -81,7 +81,15 @@ class yt:
 
         print(f" {int(percent)}% - {self.title}", end="\r")
         
-        
+def tryTYBLinks(url):
+    while(True):
+        try:
+            object=yt(url)
+            return object
+        except Exception:
+            print("le lien n'est pas valide.")
+            url=input("Entrer le lien de votre vidéo ou taper X:")
+
 YTlist=[]
 index=0
 conditionConfig=""
@@ -103,7 +111,7 @@ while(url!="X"):
         if(index!=0 and conditionConfig=="" ):
             conditionConfig=input("Gardez les mêmes paramètres o/n:")
         if(conditionConfig=="o"):
-            object=yt(url)
+            object=tryTYBLinks(url)
             if(isinstance(YTlist[index-1],list)):
                 object.type=YTlist[index-1][0].type
                 object.stream=object.ytbVid.streams.get_by_itag(YTlist[index-1][0].itag)
@@ -120,7 +128,7 @@ while(url!="X"):
                 YTlist.append(object)
             index+=1
         else:
-            object=yt(url)
+            object=tryTYBLinks(url)
             object.getType()
             if(object.type=="video"):
                 object.createStreams(object.type)
@@ -140,13 +148,13 @@ for i in range(len(YTlist)):
     if(isinstance(YTlist[i],list)): #return true if its a list
         v=0
         for v in range(2):
-            try:
-                YTlist[i][v].stream.download()
-            except:
-                print("Erreur dans le telechargement du fichier.")
-                YTlist[i][v].printStreams(YTlist[i][v].type)
-                YTlist[i][v].getStreams()
-                YTlist[i][v].stream.download()
+            # try:
+            YTlist[i][v].stream.download()
+            # except:
+            #     print("Erreur dans le telechargement du fichier.")
+            #     YTlist[i][v].printStreams(YTlist[i][v].type)
+            #     YTlist[i][v].getStreams()
+            #     YTlist[i][v].stream.download()
             title=glob.glob("*.webm")[0];
             if(v==0):
                 os.rename(title,"video.mp4")
