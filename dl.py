@@ -30,28 +30,46 @@ class yt:
             if(wrongType==False):
                 break
             
-    def printStreams(self,type):
+    def createStreams(self,type):
+        self.qualityAndItag=[]
         if(type=="video"):
             for stream in self.ytbVid.streams.filter(video_codec="vp9"):
-                print(" "+str(stream))
+                self.qualityAndItag.append([str(stream).split('"')[5][0:-1],str(stream).split('"')[1]])
         else:
             for stream in self.ytbVid.streams.filter(only_audio=True):
-                print(" "+str(stream))
+                self.qualityAndItag.append([str(stream).split('"')[5],str(stream).split('"')[1]])
+        
+        for i in range(len(self.qualityAndItag)):
+            self.qualityAndItag[i][0]=int(self.qualityAndItag[i][0])
+        
+        self.qualityAndItag.sort(reverse=True)
+        
+        for i in range(len(self.qualityAndItag)):
+            self.qualityAndItag[i][0]=str(self.qualityAndItag[i][0])+'p'
+            if(len(self.qualityAndItag[i][0])==4):
+                self.qualityAndItag[i][0]=self.qualityAndItag[i][0]+' '
+            
+    def printStreams(self):
+        for i in range(len(self.qualityAndItag)):
+            print(self.qualityAndItag[i][0]+" "+self.qualityAndItag[i][1])
             
     def getStreams(self):
         wrongItag=True
         while(wrongItag==True):
             self.itag=input("Entrer l'itag de la qualité vidéo que vous voulez:")
             if(self.type=="video"):
-                if(self.itag=="308" or self.itag=="315" or self.itag=="303" or self.itag=="302" or self.itag=="244" or self.itag=="243" or self.itag=="242" or self.itag=="278" or self.itag=="313" or self.itag=="271" or self.itag=="248" or self.itag=="247" or self.itag=="244" or self.itag=="243" or self.itag=="242"):
-                    wrongItag=False
-                else:
+                index=0
+                while(wrongItag==True and len(self.qualityAndItag)>index):
+                    if(self.itag==self.qualityAndItag[index][1]):
+                        wrongItag=False
+                    else:
+                        index=index+1
+                if(wrongItag==True):
                     print("L'itag rentrer est n'existe pas. Veuillez en rentrer un autre.")
+                
             else:
-                if(self.itag=="139" or self.itag=="140" or self.itag=="249" or self.itag=="250" or self.itag=="251"):
-                    wrongItag=False
-                else:
-                    print("L'itag rentrer est n'existe pas. Veuillez en rentrer un autre.")
+                self.itag="251"
+                wrongItag=False
                 
             if(wrongItag==False):
                 self.stream=self.ytbVid.streams.get_by_itag(self.itag)
@@ -60,11 +78,8 @@ class yt:
         lastPercent=0
         bytes_dowmnload=self.stream.filesize - bytes_remaining
         percent=bytes_dowmnload * 100 / self.stream.filesize - lastPercent
-        
-        with alive_bar(100) as bar:
-            os.system("clear")
-            for i in range(round(percent)):
-                bar()
+
+        print(f" {int(percent)}% - {self.title}", end="\r")
         
         
 YTlist=[]
@@ -107,9 +122,10 @@ while(url!="X"):
         else:
             object=yt(url)
             object.getType()
-            object.printStreams(object.type)
-            object.getStreams()
             if(object.type=="video"):
+                object.createStreams(object.type)
+                object.printStreams()
+                object.getStreams()
                 video=[]
                 video.append(object)
                 audio=yt(video[0].url,True)
